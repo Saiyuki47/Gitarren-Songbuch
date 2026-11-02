@@ -35,6 +35,7 @@ export const ZOMBIE: Lied = {
     url: 'https://tabs.ultimate-guitar.com/tab/the-cranberries/zombie-chords-844902',
     zusatz: 'Runden von Zwischenspiel und Solo nach einer weiteren Transkription, Liedtext weggelassen.',
   },
+  liedtext: { seite: 'Genius', url: 'https://genius.com/The-cranberries-zombie-lyrics' },
   abschnitte: [
     {
       id: 'intro',

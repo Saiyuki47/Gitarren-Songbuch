@@ -45,6 +45,8 @@ export interface Lied {
   anschlaege?: AnschlagId[]
   /** Quelle der Akkorde auf Ultimate Guitar; ohne `autor` = offizielle Tabulatur („Official"). */
   quelle: { autor?: string; url: string; zusatz?: string }
+  /** Link zu einer Seite mit dem (lizenzierten) Liedtext – die Lernseite selbst enthält keine Texte. */
+  liedtext?: { seite: string; url: string }
   abschnitte: SongAbschnitt[]
 }
 

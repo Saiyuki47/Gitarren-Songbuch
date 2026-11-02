@@ -33,6 +33,7 @@ export const LIED_505: Lied = {
     url: 'https://tabs.ultimate-guitar.com/tab/arctic-monkeys/505-tabs-499395',
     zusatz: 'Dm und Em übereinstimmend in weiteren Akkordblättern, Runden je Abschnitt geschätzt, Liedtext weggelassen.',
   },
+  liedtext: { seite: 'Genius', url: 'https://genius.com/Arctic-monkeys-505-lyrics' },
   abschnitte: [
     {
       id: 'intro',

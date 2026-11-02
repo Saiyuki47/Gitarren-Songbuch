@@ -33,6 +33,7 @@ export const BLUE_HAIR: Lied = {
     url: 'https://tabs.ultimate-guitar.com/tab/tv-girl/blue-hair-chords-2386317',
     zusatz: 'Liedtext weggelassen.',
   },
+  liedtext: { seite: 'Genius', url: 'https://genius.com/search?q=TV%20Girl%20Blue%20Hair' },
   abschnitte: [
     {
       id: 'intro',

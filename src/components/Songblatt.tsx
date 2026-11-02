@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { akkordNach } from '../data/akkorde'
 import { PAUSE, anzeigeName, gegriffen, griffId, taktZahl, type AnschlagId, type Lied, type SongAbschnitt } from '../data/songblatt'
+import { useLiedTexte } from '../lib/liedtext'
 import { klick, starteTakt, useAudioContext } from '../lib/takt'
 import Griffbild from './Griffbild'
 
@@ -12,6 +13,8 @@ import Griffbild from './Griffbild'
 // Ein Klick auf einen Takt setzt den Startpunkt. Jede Kachel zeigt die Anschläge des
 // gewählten Musters auf 8 Achtel-Plätzen (1 + 2 + 3 + 4 +); beim Mitspielen leuchtet
 // der aktuelle Platz.
+// Liedtexte enthält die Seite nicht (Urheberrecht): Je Abschnitt kann man den Text selbst
+// eintragen – gespeichert nur im eigenen Browser (lib/liedtext.ts), optional mit Link zum Text.
 
 const SCHLAEGE = 4
 const EINZAEHLEN = 4
@@ -59,6 +62,67 @@ function AnschlagZeile({ anschlag, aktivesAchtel }: { anschlag: AnschlagId; akti
   )
 }
 
+/** Eigener Text eines Abschnitts: anzeigen, eintragen, bearbeiten (leer speichern = löschen). */
+function AbschnittText({
+  text,
+  entwurf,
+  aktiv,
+  onEntwurf,
+  onSpeichern,
+}: {
+  text?: string
+  entwurf: string | null
+  aktiv: boolean
+  onEntwurf: (t: string | null) => void
+  onSpeichern: (t: string) => void
+}) {
+  if (entwurf !== null) {
+    return (
+      <div className="sb-text">
+        <textarea
+          className="sb-text-feld"
+          value={entwurf}
+          onChange={e => onEntwurf(e.target.value)}
+          rows={Math.max(5, entwurf.split('\n').length + 1)}
+          placeholder="Text für diesen Abschnitt einfügen oder eintippen …"
+          aria-label="Eigener Text zu diesem Abschnitt"
+        />
+        <div className="sb-text-knoepfe">
+          <button
+            type="button"
+            className="filter-btn on"
+            onClick={() => {
+              onSpeichern(entwurf)
+              onEntwurf(null)
+            }}
+          >
+            Speichern
+          </button>
+          <button type="button" className="filter-btn" onClick={() => onEntwurf(null)}>
+            Abbrechen
+          </button>
+        </div>
+        <p className="sb-text-hinweis">Nur in diesem Browser gespeichert. Leer speichern löscht den Text.</p>
+      </div>
+    )
+  }
+  if (!text) {
+    return (
+      <button type="button" className="sb-link sb-text-neu" onClick={() => onEntwurf('')}>
+        📝 Text eintragen
+      </button>
+    )
+  }
+  return (
+    <div className={`sb-text${aktiv ? ' aktiv' : ''}`}>
+      <p className="sb-text-inhalt">{text}</p>
+      <button type="button" className="sb-link sb-text-bearbeiten" onClick={() => onEntwurf(text)}>
+        Bearbeiten
+      </button>
+    </div>
+  )
+}
+
 function Abschnitt({
   lied,
   abschnitt,
@@ -68,6 +132,9 @@ function Abschnitt({
   startTakt,
   anschlag,
   onTaktKlick,
+  zeigeText,
+  text,
+  onText,
 }: {
   lied: Lied
   abschnitt: SongAbschnitt
@@ -77,7 +144,13 @@ function Abschnitt({
   startTakt: number
   anschlag: AnschlagId
   onTaktKlick: (i: number) => void
+  zeigeText: boolean
+  text?: string
+  onText: (text: string) => void
 }) {
+  const [entwurf, setEntwurf] = useState<string | null>(null)
+  const mitText = zeigeText && (text !== undefined || entwurf !== null)
+  const imAbschnitt = position !== null && position.takt >= offset && position.takt < offset + abschnitt.takte.length
   const griffe = useMemo(() => {
     const ids = new Set(abschnitt.takte.flat().map(a => griffId(gegriffen(lied, a, vereinfacht))))
     return [...ids].map(id => (id ? akkordNach(id) : undefined)).filter(a => a !== undefined)
@@ -98,40 +171,45 @@ function Abschnitt({
         </div>
       )}
 
-      <div className="sb-takte">
-        {abschnitt.takte.map((takt, i) => {
-          const g = offset + i
-          const aktiv = position?.takt === g
-          const pause = takt.every(a => a === PAUSE)
-          const griffText = takt.map(a => anzeigeName(gegriffen(lied, a, vereinfacht)))
-          const originalText = takt.map(anzeigeName).join(' · ')
-          return (
-            <button
-              key={i}
-              type="button"
-              className={`sb-takt${aktiv ? ' aktiv' : ''}${pause ? ' pause' : ''}${!position && startTakt === g && g > 0 ? ' start' : ''}`}
-              onClick={() => onTaktKlick(g)}
-              aria-label={`Takt ${i + 1}: ${griffText.join(', ')}. Ab hier mitspielen`}
-              data-takt={g}
-            >
-              <span className="sb-taktnr">{i + 1}</span>
-              <span className="sb-akkorde">
-                {griffText.map((a, j) => (
-                  <span key={j} className="sb-akkord">
-                    {a}
-                  </span>
-                ))}
-              </span>
-              {/* Original klein darunter, wenn in der einfachen Ansicht etwas anderes steht */}
-              {!pause && originalText !== griffText.join(' · ') && <span className="sb-original">{originalText}</span>}
-              {pause ? (
-                <span className="sb-original">nicht spielen, mitzählen</span>
-              ) : (
-                <AnschlagZeile anschlag={anschlag} aktivesAchtel={aktiv ? position.achtel : undefined} />
-              )}
-            </button>
-          )
-        })}
+      <div className={`sb-inhalt${mitText ? ' mit-text' : ''}`}>
+        <div className="sb-takte">
+          {abschnitt.takte.map((takt, i) => {
+            const g = offset + i
+            const aktiv = position?.takt === g
+            const pause = takt.every(a => a === PAUSE)
+            const griffText = takt.map(a => anzeigeName(gegriffen(lied, a, vereinfacht)))
+            const originalText = takt.map(anzeigeName).join(' · ')
+            return (
+              <button
+                key={i}
+                type="button"
+                className={`sb-takt${aktiv ? ' aktiv' : ''}${pause ? ' pause' : ''}${!position && startTakt === g && g > 0 ? ' start' : ''}`}
+                onClick={() => onTaktKlick(g)}
+                aria-label={`Takt ${i + 1}: ${griffText.join(', ')}. Ab hier mitspielen`}
+                data-takt={g}
+              >
+                <span className="sb-taktnr">{i + 1}</span>
+                <span className="sb-akkorde">
+                  {griffText.map((a, j) => (
+                    <span key={j} className="sb-akkord">
+                      {a}
+                    </span>
+                  ))}
+                </span>
+                {/* Original klein darunter, wenn in der einfachen Ansicht etwas anderes steht */}
+                {!pause && originalText !== griffText.join(' · ') && <span className="sb-original">{originalText}</span>}
+                {pause ? (
+                  <span className="sb-original">nicht spielen, mitzählen</span>
+                ) : (
+                  <AnschlagZeile anschlag={anschlag} aktivesAchtel={aktiv ? position.achtel : undefined} />
+                )}
+              </button>
+            )
+          })}
+        </div>
+        {zeigeText && (
+          <AbschnittText text={text} entwurf={entwurf} aktiv={imAbschnitt} onEntwurf={setEntwurf} onSpeichern={onText} />
+        )}
       </div>
 
       <div className="griffbild-reihe">
@@ -158,6 +236,8 @@ export default function Songblatt({ lied }: { lied: Lied }) {
   const [position, setPosition] = useState<Position | null>(null)
   const [startTakt, setStartTakt] = useState(0)
   const [mitscrollen, setMitscrollen] = useState(true)
+  const [zeigeText, setZeigeText] = useState(true)
+  const [texte, setText] = useLiedTexte(lied.id)
   const wurzel = useRef<HTMLDivElement>(null)
 
   // Wiedergabe: Klicks (Viertel) mit Vorlauf in AudioContext-Zeit planen,
@@ -278,6 +358,22 @@ export default function Songblatt({ lied }: { lied: Lied }) {
           ))}
         </div>
 
+        <p className="sb-label">Text</p>
+        <div className="sb-text-optionen">
+          <label className="sb-option">
+            <input type="checkbox" checked={zeigeText} onChange={e => setZeigeText(e.target.checked)} /> Eigenen Text anzeigen
+          </label>
+          {lied.liedtext && (
+            <a className="filter-btn" href={lied.liedtext.url} target="_blank" rel="noopener noreferrer">
+              📝 Liedtext bei {lied.liedtext.seite} ↗
+            </a>
+          )}
+        </div>
+        <p className="sb-text-hinweis">
+          Die Seite enthält keine Liedtexte. Über „📝 Text eintragen" bei jedem Abschnitt kannst du den Text (oder eigene
+          Notizen) selbst einfügen – er wird nur in diesem Browser gespeichert und nicht veröffentlicht.
+        </p>
+
         <label className="sb-option">
           <input type="checkbox" checked={mitscrollen} onChange={e => setMitscrollen(e.target.checked)} /> Mitscrollen
         </label>
@@ -315,6 +411,9 @@ export default function Songblatt({ lied }: { lied: Lied }) {
           startTakt={startTakt}
           anschlag={anschlag}
           onTaktKlick={taktKlick}
+          zeigeText={zeigeText}
+          text={texte[a.id]}
+          onText={t => setText(a.id, t)}
         />
       ))}
 
