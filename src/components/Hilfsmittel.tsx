@@ -212,30 +212,38 @@ const SEITE_BLUE_HAIR: Box[] = [
   },
 ]
 
+/** Abschnitte von 505 als Kurztext, z.B. „Intro 8 · Refrain 16". */
+const aufbau505 = (von: number, bis?: number) =>
+  LIED_505_AUFBAU.slice(von, bis)
+    .map(a => `${a.name} ${a.takte}`)
+    .join(' · ')
+
 const SEITE_505: Box[] = [
   {
-    t: '505',
+    t: '505 (wie im Video)',
     r: [
       { l: 'Tonart', f: 'D-Moll (Dorisch), ohne Kapo' },
-      { l: 'Tempo', f: `ca. ${LIED_505.bpm} BPM, 4/4 (üben ab ${LIED_505.uebeBpm})` },
+      { l: 'Tempo', f: `ca. ${LIED_505.bpm} BPM, ab Strophe 3 ca. 122 (üben ab ${LIED_505.uebeBpm})` },
       { l: 'Runde', f: 'Dm Dm Em Em – je Akkord 2 Takte' },
       { l: 'Song', f: 'Dieselbe Runde von Anfang bis Ende' },
     ],
   },
   {
-    t: 'Aufbau (Runden à 4 Takte)',
+    t: 'Aufbau (Takte)',
     r: [
-      { f: LIED_505_AUFBAU.slice(0, 5).map(a => `${a.name.replace(/ \(.*\)/, '')} ${a.runden}×`).join(' · ') },
-      { f: LIED_505_AUFBAU.slice(5).map(a => `${a.name.replace(/ \(.*\)/, '')} ${a.runden}×`).join(' · ') },
+      { l: '↓ 1×', f: aufbau505(0, 2) },
+      { l: 'DDU UDU', f: aufbau505(2, 5) },
+      { l: '↓ 1×', f: aufbau505(5, 6) },
+      { l: 'schneller', f: `${aufbau505(6, 9)} (DDU UDU)` },
+      { l: '↓ 1×', f: `${aufbau505(9)} – ausklingen` },
     ],
   },
   {
-    t: 'Anschlag und Dynamik (1 + 2 + 3 + 4 +)',
+    t: 'Anschlag (1 + 2 + 3 + 4 +)',
     r: [
-      { l: 'Leise', f: '↓   (1× pro Takt, ausklingen)' },
-      { l: 'Mittel', f: '↓   ↓   ↓   ↓' },
-      { l: 'Laut', f: '↓ ↓ ↓ ↓ ↓ ↓ ↓ ↓   (Bridge, Schluss)' },
-      { f: 'Lauter heißt nicht schneller – beim Klick bleiben' },
+      { l: 'DOWN', f: '↓ auf die 1, zwei Takte klingen lassen' },
+      { l: 'DDU UDU', f: '↓ – ↓ ↑ – ↑ ↓ ↑  (2× pro Akkord)' },
+      { f: 'DDU UDU = Song-Muster aus Go K.K. Rider' },
     ],
   },
   {
@@ -243,8 +251,8 @@ const SEITE_505: Box[] = [
     r: [
       { f: 'Em mit Zeige-/Mittelfinger: Mittelfinger bleibt im 2. Bund' },
       { f: 'Dm: tiefe E-Saite still, leere A-Saite darf klingen' },
-      { f: 'Wechsel auf der 4 des zweiten Takts vorbereiten' },
-      { f: 'Barré-Variante: Am-Form 5. Bund → 7. Bund rutschen' },
+      { f: 'Umgreifen auf 4+ – Leersaiten dürfen kurz klingen' },
+      { f: 'Barré-Variante (Bonus): Am-Form 5. Bund → 7. Bund' },
     ],
   },
 ]

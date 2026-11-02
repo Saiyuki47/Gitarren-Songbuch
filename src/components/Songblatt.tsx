@@ -12,7 +12,9 @@ import Griffbild from './Griffbild'
 // Umschalter zwischen einfacher Ansicht und Original.
 // Ein Klick auf einen Takt setzt den Startpunkt. Jede Kachel zeigt die Anschläge des
 // gewählten Musters auf 8 Achtel-Plätzen (1 + 2 + 3 + 4 +); beim Mitspielen leuchtet
-// der aktuelle Platz.
+// der aktuelle Platz. Geben Abschnitte ihren Anschlag selbst vor (`anschlag`, z.B. 505
+// laut Video), gibt es zusätzlich „Wie im Video": jeder Abschnitt mit seinem Muster.
+// Abschnitte mit `tempo` laufen beim Mitspielen entsprechend schneller.
 // Liedtexte enthält die Seite nicht (Urheberrecht): Je Abschnitt kann man den Text selbst
 // eintragen – gespeichert nur im eigenen Browser (lib/liedtext.ts), optional mit Link zum Text.
 
@@ -21,7 +23,8 @@ const EINZAEHLEN = 4
 
 /** Anschläge je Achtel: ↓ ab, ↑ auf, – Luftschlag, '' = nichts (Hand pendelt nur). */
 const ANSCHLAG: Record<AnschlagId, { name: string; slots: string[] }> = {
-  ganze: { name: '↓  Ein Schlag pro Takt (ausklingen)', slots: ['↓', '', '', '', '', '', '', ''] },
+  // Nur beim Akkordwechsel anschlagen – dauert ein Akkord mehrere Takte, klingt er weiter
+  einzeln: { name: '↓  Einmal pro Akkord', slots: ['↓', '', '', '', '', '', '', ''] },
   viertel: { name: '↓ ↓ ↓ ↓  Viertel (Einstieg)', slots: ['↓', '', '↓', '', '↓', '', '↓', ''] },
   song: { name: '↓ – ↓↑ – ↑ ↓↑  Song-Muster', slots: ['↓', '–', '↓', '↑', '–', '↑', '↓', '↑'] },
   rock: { name: '↓↓↓↓↓↓↓↓  Rock-Achtel (laut)', slots: ['↓', '↓', '↓', '↓', '↓', '↓', '↓', '↓'] },
@@ -30,6 +33,10 @@ const ANSCHLAG: Record<AnschlagId, { name: string; slots: string[] }> = {
 const STANDARD_ANSCHLAEGE: AnschlagId[] = ['viertel', 'song']
 const STANDARD_ANSICHTEN = { einfach: 'Einfache Griffe', original: 'Wie im Original' }
 const ZAEHLZEIT = ['1', '+', '2', '+', '3', '+', '4', '+']
+
+/** Auswahl „jeder Abschnitt mit seinem eigenen Anschlag" (nur wenn Abschnitte `anschlag` haben). */
+const QUELLE = 'quelle'
+type Auswahl = AnschlagId | typeof QUELLE
 
 /** Startindex (global über alle Abschnitte) je Abschnitt. */
 const offsetsVon = (lied: Lied) =>
@@ -177,6 +184,7 @@ function Abschnitt({
             const g = offset + i
             const aktiv = position?.takt === g
             const pause = takt.every(a => a === PAUSE)
+            const klingt = anschlag === 'einzeln' && i > 0 && takt.join() === abschnitt.takte[i - 1].join()
             const griffText = takt.map(a => anzeigeName(gegriffen(lied, a, vereinfacht)))
             const originalText = takt.map(anzeigeName).join(' · ')
             return (
@@ -200,6 +208,8 @@ function Abschnitt({
                 {!pause && originalText !== griffText.join(' · ') && <span className="sb-original">{originalText}</span>}
                 {pause ? (
                   <span className="sb-original">nicht spielen, mitzählen</span>
+                ) : klingt ? (
+                  <span className="sb-original">klingen lassen</span>
                 ) : (
                   <AnschlagZeile anschlag={anschlag} aktivesAchtel={aktiv ? position.achtel : undefined} />
                 )}
@@ -229,7 +239,11 @@ export default function Songblatt({ lied }: { lied: Lied }) {
   const gesamt = taktZahl(lied)
   const anschlaege = lied.anschlaege ?? STANDARD_ANSCHLAEGE
   const ansichten = lied.ansichten ?? STANDARD_ANSICHTEN
-  const [anschlag, setAnschlag] = useState<AnschlagId>(anschlaege[0])
+  const jeAbschnitt = lied.abschnitte.some(a => a.anschlag)
+  const [anschlag, setAnschlag] = useState<Auswahl>(jeAbschnitt ? QUELLE : anschlaege[0])
+  /** Muster, mit dem ein Abschnitt in der aktuellen Auswahl gespielt wird. */
+  const musterVon = (a: SongAbschnitt): AnschlagId => (anschlag === QUELLE ? (a.anschlag ?? anschlaege[0]) : anschlag)
+  const legendeMuster = [...new Set(lied.abschnitte.map(musterVon))]
   const [vereinfacht, setVereinfacht] = useState(true)
   const [bpm, setBpm] = useState(lied.uebeBpm)
   const [laeuft, setLaeuft] = useState(false)
@@ -241,29 +255,41 @@ export default function Songblatt({ lied }: { lied: Lied }) {
   const wurzel = useRef<HTMLDivElement>(null)
 
   // Wiedergabe: Klicks (Viertel) mit Vorlauf in AudioContext-Zeit planen,
-  // Anzeige (Achtel, für die Anschlag-Pfeile) aus derselben Uhr ableiten
+  // Anzeige (Achtel, für die Anschlag-Pfeile) aus derselben Uhr ableiten.
+  // Einzählen im gewählten Tempo, danach je Abschnitt mal seinem `tempo`-Faktor.
   useEffect(() => {
     if (!laeuft) return
     const ctx = getCtx()
-    const dauer = 60 / bpm
+    const dauern: number[] = Array(EINZAEHLEN).fill(60 / bpm)
+    for (let g = startTakt; g < gesamt; g++) {
+      const faktor = lied.abschnitte[abschnittVon(offsets, g)].tempo ?? 1
+      for (let s = 0; s < SCHLAEGE; s++) dauern.push(60 / (bpm * faktor))
+    }
+    // beginn[i] = Start von Schlag i relativ zu t0 (ein Eintrag mehr als Schläge)
+    const beginn = [0]
+    for (const d of dauern) beginn.push(beginn[beginn.length - 1] + d)
     const t0 = ctx.currentTime + 0.15
-    const gesamtSchlaege = EINZAEHLEN + (gesamt - startTakt) * SCHLAEGE
+    const gesamtSchlaege = dauern.length
     let geplant = 0
+    let schlag = 0
     let letzte = -2
 
     const tick = () => {
-      while (geplant < gesamtSchlaege && t0 + geplant * dauer < ctx.currentTime + 0.1) {
+      while (geplant < gesamtSchlaege && t0 + beginn[geplant] < ctx.currentTime + 0.1) {
         const erster = geplant % SCHLAEGE === 0
-        klick(ctx, t0 + geplant * dauer, geplant < EINZAEHLEN ? 1200 : erster ? 1600 : 1000, erster ? 0.6 : 0.35)
+        klick(ctx, t0 + beginn[geplant], geplant < EINZAEHLEN ? 1200 : erster ? 1600 : 1000, erster ? 0.6 : 0.35)
         geplant++
       }
-      const e = Math.floor((ctx.currentTime - t0) / (dauer / 2))
-      if (e === letzte || e < 0) return
-      letzte = e
-      if (e >= gesamtSchlaege * 2) {
+      const jetzt = ctx.currentTime - t0
+      if (jetzt < 0) return
+      while (schlag < gesamtSchlaege && beginn[schlag + 1] <= jetzt) schlag++
+      if (schlag >= gesamtSchlaege) {
         setLaeuft(false)
         return
       }
+      const e = schlag * 2 + (jetzt - beginn[schlag] >= dauern[schlag] / 2 ? 1 : 0)
+      if (e === letzte) return
+      letzte = e
       const imLied = e - EINZAEHLEN * 2
       setPosition(
         imLied < 0
@@ -278,10 +304,11 @@ export default function Songblatt({ lied }: { lied: Lied }) {
       stopp()
       setPosition(null)
     }
-  }, [laeuft, bpm, startTakt, gesamt, getCtx])
+  }, [laeuft, bpm, startTakt, gesamt, getCtx, lied, offsets])
 
   // Aktuellen Takt im Blick behalten
   const aktTakt = position?.takt ?? -1
+  const aktAbschnitt = aktTakt >= 0 ? lied.abschnitte[abschnittVon(offsets, aktTakt)] : undefined
   useEffect(() => {
     if (!mitscrollen || aktTakt < 0) return
     wurzel.current?.querySelector(`[data-takt="${aktTakt}"]`)?.scrollIntoView({ block: 'center', behavior: 'smooth' })
@@ -308,20 +335,33 @@ export default function Songblatt({ lied }: { lied: Lied }) {
             <b>So liest du das Blatt:</b> Eine Kachel = <b>ein Takt</b> = <b>4 Schläge</b>. Zähl dabei „1 + 2 + 3 + 4 +". Die
             Pfeile unten in jeder Kachel zeigen, wann du anschlägst: ↓ abwärts, ↑ aufwärts, – Luftschlag (die Hand bewegt
             sich, trifft aber nicht). Stehen <b>zwei Akkorde</b> in einer Kachel, wechselst du auf Schlag 3.
+            {legendeMuster.includes('einzeln') && (
+              <>
+                {' '}
+                Bei <b>„klingen lassen"</b> schlägst du nicht neu an – der Akkord vom Takt davor klingt weiter.
+              </>
+            )}
           </p>
-          <div className="sb-legende-beispiel" aria-hidden="true">
-            <AnschlagZeile anschlag={anschlag} />
-            <span className="sb-anschlag sb-zaehlzeit">
-              {ZAEHLZEIT.map((z, a) => (
-                <i key={a}>{z}</i>
-              ))}
-            </span>
-          </div>
+          {legendeMuster.map(m => (
+            <div key={m} className="sb-legende-beispiel" aria-hidden="true">
+              <AnschlagZeile anschlag={m} />
+              <span className="sb-anschlag sb-zaehlzeit">
+                {ZAEHLZEIT.map((z, a) => (
+                  <i key={a}>{z}</i>
+                ))}
+              </span>
+            </div>
+          ))}
           <p>{gesamt} Takte insgesamt. Tipp auf einen Takt, um ab dort mitzuspielen.</p>
         </div>
 
         <p className="sb-label">Anschlag</p>
         <div className="filter-row">
+          {jeAbschnitt && (
+            <button type="button" className={`filter-btn${anschlag === QUELLE ? ' on' : ''}`} onClick={() => setAnschlag(QUELLE)}>
+              {lied.quelle.video ? '🎬 Wie im Video' : 'Wie in der Quelle'} (je Abschnitt)
+            </button>
+          )}
           {anschlaege.map(id => (
             <button key={id} type="button" className={`filter-btn${anschlag === id ? ' on' : ''}`} onClick={() => setAnschlag(id)}>
               {ANSCHLAG[id].name}
@@ -353,7 +393,7 @@ export default function Songblatt({ lied }: { lied: Lied }) {
               onClick={() => setBpm(t)}
               disabled={laeuft}
             >
-              {t} BPM{t === lied.bpm ? ' (Original)' : t === lied.uebeBpm ? ' (Üben)' : ''}
+              {t} BPM{t === lied.bpm ? (lied.quelle.video ? ' (Video)' : ' (Original)') : t === lied.uebeBpm ? ' (Üben)' : ''}
             </button>
           ))}
         </div>
@@ -380,9 +420,10 @@ export default function Songblatt({ lied }: { lied: Lied }) {
 
         <div className="sb-status" aria-live="polite">
           {position?.takt === -1 && <b>Einzählen: {Math.floor(position.achtel / 2) + 1}</b>}
-          {position && position.takt >= 0 && (
+          {aktAbschnitt && (
             <>
-              <b>{lied.abschnitte[abschnittVon(offsets, position.takt)].name}</b> · Takt {position.takt + 1} von {gesamt}
+              <b>{aktAbschnitt.name}</b> · Takt {aktTakt + 1} von {gesamt}
+              {aktAbschnitt.tempo && ` · ${Math.round(bpm * aktAbschnitt.tempo)} BPM`}
             </>
           )}
           {!position && startTakt > 0 && (
@@ -409,7 +450,7 @@ export default function Songblatt({ lied }: { lied: Lied }) {
           offset={offsets[i]}
           position={position}
           startTakt={startTakt}
-          anschlag={anschlag}
+          anschlag={musterVon(a)}
           onTaktKlick={taktKlick}
           zeigeText={zeigeText}
           text={texte[a.id]}
@@ -418,10 +459,12 @@ export default function Songblatt({ lied }: { lied: Lied }) {
       ))}
 
       <p className="sb-quelle">
-        {lied.rechte}. Akkorde nach{' '}
-        {lied.quelle.autor ? `der Transkription von „${lied.quelle.autor}" auf` : 'der offiziellen Tabulatur auf'}{' '}
+        {lied.rechte}.{' '}
+        {lied.quelle.video
+          ? `Akkorde, Aufbau und Anschläge nach dem Video-Tutorial von „${lied.quelle.autor}" auf`
+          : `Akkorde nach ${lied.quelle.autor ? `der Transkription von „${lied.quelle.autor}" auf` : 'der offiziellen Tabulatur auf'}`}{' '}
         <a href={lied.quelle.url} target="_blank" rel="noopener noreferrer">
-          Ultimate Guitar ↗
+          {lied.quelle.video ? 'YouTube ↗' : 'Ultimate Guitar ↗'}
         </a>
         .{lied.quelle.zusatz && ` ${lied.quelle.zusatz}`} Taktaufteilung und Tipps von dieser Lernseite.
       </p>

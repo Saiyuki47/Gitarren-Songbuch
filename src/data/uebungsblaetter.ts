@@ -8,7 +8,7 @@ import { LIED_505 } from './lieder/lied505'
 // Lernschritte je Lied (`lied` = Untertab). Alle Lieder werden mit den Original-Griffen
 // ohne Kapodaster gelernt: Go K.K. Rider in 6 Schritten (offene Griffe und Rhythmus
 // zuerst, dann Barré), K.K. Cruisin' in 5 Schritten, Zombie in 5 Schritten + Bonus,
-// Blue Hair in 5 Schritten, 505 in 5 Schritten + Bonus.
+// Blue Hair in 5 Schritten, 505 in 5 Schritten wie im Video-Tutorial + Bonus.
 // Jeder Schritt verweist per `aufgabeId` auf eine Übung aus data/aufgaben.ts.
 // Die Schritt-IDs bleiben stabil – an ihnen hängt der gespeicherte Fortschritt.
 export const uebungsblaetter: Uebungsblatt[] = [
@@ -338,11 +338,12 @@ export const uebungsblaetter: Uebungsblatt[] = [
     titel: 'Vorbereitung',
     typ: 'Grundlagen',
     dauer: '1–2 Tage · 10 Min.',
-    beschreibung: 'Stimmen, Haltung und der erste Akkord. 505 kreist um D-Moll und beginnt mit Dm – einem offenen Griff, der genau wie im Original klingt.',
+    beschreibung: 'Stimmen, Haltung, der erste Akkord und ein Blick ins Video-Tutorial: zwei Akkorde und zwei Arten anzuschlagen – mehr braucht 505 nicht.',
     aufgaben: [
       { nr: 1, text: 'Stimme die Gitarre auf E – A – D – G – H – e.', aufgabeId: 'stimmen' },
       { nr: 2, text: 'Finde eine entspannte Haltung und halte das Plektrum richtig.', aufgabeId: 'haltung' },
-      { nr: 3, text: 'Greif Dm sauber und prüfe es zur Aufnahme.', aufgabeId: 'am505-tonart' },
+      { nr: 3, text: 'Greif Dm sauber und prüfe es zum Video.', aufgabeId: 'am505-tonart' },
+      { nr: 4, text: 'Schau das Video an und verschaff dir den Überblick.', aufgabeId: 'am505-video' },
     ],
   },
   {
@@ -359,29 +360,29 @@ export const uebungsblaetter: Uebungsblatt[] = [
     ],
   },
   {
-    id: 'am505-rhythmus',
+    id: 'am505-einzeln',
     lied: '505',
     nr: '3',
-    titel: 'Tempo und Zählen',
+    titel: 'Ein Abschlag pro Akkord',
     typ: 'Rhythmus',
-    dauer: '1 Woche · 15 Min.',
-    beschreibung: '505 läuft mit ca. 140 BPM – du startest mit 80. Jeder Akkord liegt zwei Takte: Wer mitzählt, wechselt immer pünktlich.',
+    dauer: '3–4 Tage · 10 Min.',
+    beschreibung: 'So beginnt das Video: Intro und erster Refrain mit nur einem Abschlag pro Akkord („DOWN"), der zwei Takte klingt. Genauso spielst du später den Break und den Schluss.',
     aufgaben: [
-      { nr: 1, text: 'Finde das Tempo und bleib beim Klick.', aufgabeId: 'am505-tempo' },
-      { nr: 2, text: 'Zähl zwei Takte pro Akkord.', aufgabeId: 'am505-zaehlen' },
+      { nr: 1, text: 'Zähl zwei Takte pro Akkord.', aufgabeId: 'am505-zaehlen' },
+      { nr: 2, text: 'Ein Abschlag pro Akkord, zwei Takte klingen lassen.', aufgabeId: 'am505-einzeln' },
     ],
   },
   {
-    id: 'am505-dynamik',
+    id: 'am505-muster',
     lied: '505',
     nr: '4',
-    titel: 'Von leise bis laut',
+    titel: 'DDU UDU und Tempo',
     typ: 'Rhythmus',
     dauer: '1 Woche · 15 Min.',
-    beschreibung: 'Weil die Akkorde gleich bleiben, lebt 505 von der Dynamik: leise Orgel-Strophen, eine lange Steigerung und eine laute Bridge. Dafür brauchst du drei Anschläge.',
+    beschreibung: 'Das Schlagmuster aus dem Video, zweimal pro Akkord. Erst langsam, dann im Video-Tempo von etwa 112 BPM – und ab Strophe 3 etwas schneller.',
     aufgaben: [
-      { nr: 1, text: 'Ganze, Viertel und Rock-Achtel über Dm – Em.', aufgabeId: 'am505-anschlag' },
-      { nr: 2, text: 'Acht Runden von leise bis laut.', aufgabeId: 'am505-steigerung' },
+      { nr: 1, text: 'Das Schlagmuster DDU UDU.', aufgabeId: 'am505-muster' },
+      { nr: 2, text: 'Finde das Tempo des Videos.', aufgabeId: 'am505-tempo' },
     ],
   },
   {
@@ -391,8 +392,8 @@ export const uebungsblaetter: Uebungsblatt[] = [
     titel: '505 spielen',
     typ: 'Song',
     dauer: '2 Wochen · 20 Min.',
-    beschreibung: 'Alles zusammen: Songblatt „🎵 Das ganze Lied" kennenlernen, den Aufbau beim Hören mitverfolgen und den ganzen Song mit der großen Steigerung mitspielen.',
-    link: { text: '🎼 Tabulatur bei Ultimate Guitar öffnen', url: LIED_505.quelle.url },
+    beschreibung: 'Alles zusammen: Songblatt „🎵 Das ganze Lied" kennenlernen, den Aufbau beim Video mitverfolgen und den ganzen Song mitspielen.',
+    link: { text: '▶️ Video-Tutorial auf YouTube öffnen', url: LIED_505.quelle.url },
     aufgaben: [
       { nr: 1, text: 'Lerne das Songblatt kennen und verfolge den Aufbau.', aufgabeId: 'am505-song-blatt' },
       { nr: 2, text: 'Spiel den ganzen Song mit.', aufgabeId: 'am505-song' },
@@ -405,7 +406,7 @@ export const uebungsblaetter: Uebungsblatt[] = [
     titel: 'Bonus: Barré-Variante',
     typ: 'Bonus',
     dauer: '2+ Wochen · 15 Min.',
-    beschreibung: 'Freiwillig: Dm und Em als Am-Form im 5. und 7. Bund. Dieselbe Handform für beide Akkorde – der Wechsel wird zum Rutschen, und die lauten Teile klingen kräftiger.',
+    beschreibung: 'Freiwillig und nicht aus dem Video: Dm und Em als Am-Form im 5. und 7. Bund. Dieselbe Handform für beide Akkorde – der Wechsel wird zum Rutschen, und die schnellen Teile klingen kräftiger.',
     aufgaben: [{ nr: 1, text: 'Dm und Em als Barré: verschieben statt umgreifen.', aufgabeId: 'am505-barre' }],
   },
 ]

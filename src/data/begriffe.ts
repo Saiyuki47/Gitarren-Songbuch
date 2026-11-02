@@ -131,6 +131,11 @@ export const begriffGruppen: BegriffGruppe[] = [
         definition: 'Die Schlaghand macht die Bewegung, verfehlt aber absichtlich die Saiten – so bleibt das Pendel im Takt.',
       },
       {
+        begriff: 'D/U-Schreibweise (z.B. DDU UDU)',
+        definition: 'Kurzschrift für Schlagmuster, wie sie viele Video-Tutorials einblenden: D = Down (Abschlag ↓), U = Up (Aufschlag ↑). „DDU UDU" in 505 ist ↓ – ↓ ↑ – ↑ ↓ ↑ – die Lücke steht für den Luftschlag auf der 3.',
+        merke: 'DDU UDU = das Song-Muster aus Go K.K. Rider.',
+      },
+      {
         begriff: 'Swing / Shuffle',
         definition: 'Achtel werden ungleich gespielt: die erste lang, die zweite kurz (ca. 2 : 1). Klingt hüpfend.',
         merke: '„Dum-da Dum-da" statt „ta-ta ta-ta".',
@@ -141,7 +146,7 @@ export const begriffGruppen: BegriffGruppe[] = [
       },
       {
         begriff: 'Dynamik',
-        definition: 'Die Lautstärke und ihre Veränderung im Song. Bei Zombie sind die Strophen leise und die Refrains laut, 505 steigert sich von der leisen Orgel bis zur lauten Bridge – mit denselben Griffen, nur anders angeschlagen.',
+        definition: 'Die Lautstärke und ihre Veränderung im Song. Bei Zombie sind die Strophen leise und die Refrains laut, bei 505 wechseln einzelne Abschläge und das volle Schlagmuster – mit denselben Griffen, nur anders angeschlagen.',
         merke: 'Leiser heißt nicht langsamer.',
       },
       {
@@ -172,6 +177,10 @@ export const begriffGruppen: BegriffGruppe[] = [
       {
         begriff: 'Bridge',
         definition: 'Kontrastierender Zwischenteil, der meist nur einmal vorkommt und zurück zum Refrain führt.',
+      },
+      {
+        begriff: 'Break',
+        definition: 'Kurzer Teil, in dem die Begleitung zurückgenommen wird oder aussetzt. In 505 wird im Break nur einmal pro Akkord angeschlagen – danach zieht der Song zum Schluss noch einmal an.',
       },
       {
         begriff: 'Transponieren',

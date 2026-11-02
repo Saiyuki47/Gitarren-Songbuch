@@ -9,7 +9,7 @@
 export type Takt = [string] | [string, string]
 
 /** Anschlagmuster im Songblatt (Definitionen in components/Songblatt.tsx). */
-export type AnschlagId = 'ganze' | 'viertel' | 'song' | 'rock' | 'offbeat'
+export type AnschlagId = 'einzeln' | 'viertel' | 'song' | 'rock' | 'offbeat'
 
 export interface SongAbschnitt {
   id: string
@@ -17,6 +17,10 @@ export interface SongAbschnitt {
   /** 1 = Tonart vor dem Tonartwechsel, 2 = danach (einen Halbton höher). */
   teil: 1 | 2
   takte: Takt[]
+  /** Anschlag dieses Abschnitts laut Quelle – dann bietet das Songblatt „Wie im Video" an. */
+  anschlag?: AnschlagId
+  /** Tempo gegenüber dem gewählten Tempo, z.B. 1.09 = 9 % schneller (fehlt = gleich schnell). */
+  tempo?: number
   tipp: string
   /** Eigener Tipp für die Ansicht „Original", wenn das Lied eine vereinfachte Ansicht hat. */
   tippOriginal?: string
@@ -43,8 +47,11 @@ export interface Lied {
   ansichten?: { einfach: string; original: string }
   /** Anschlagmuster im Songblatt (Standard: Viertel und Song-Muster). */
   anschlaege?: AnschlagId[]
-  /** Quelle der Akkorde auf Ultimate Guitar; ohne `autor` = offizielle Tabulatur („Official"). */
-  quelle: { autor?: string; url: string; zusatz?: string }
+  /**
+   * Quelle der Akkorde auf Ultimate Guitar; ohne `autor` = offizielle Tabulatur („Official").
+   * `video`: stattdessen ein Video-Tutorial auf YouTube (`autor` = Kanal).
+   */
+  quelle: { autor?: string; url: string; zusatz?: string; video?: boolean }
   /** Link zu einer Seite mit dem (lizenzierten) Liedtext – die Lernseite selbst enthält keine Texte. */
   liedtext?: { seite: string; url: string }
   abschnitte: SongAbschnitt[]

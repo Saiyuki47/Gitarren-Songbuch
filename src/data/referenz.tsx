@@ -242,24 +242,26 @@ ${BLUE_HAIR_AUFBAU.map(a => `${a.name}: ${a.akkorde} (${a.takte} Takte)`).join('
   {
     id: '505',
     titel: '505 im Überblick',
-    inhalt: `„505" von Arctic Monkeys. Tonart D-Moll (genauer D-Dorisch), ca. ${LIED_505.bpm} BPM, 4/4-Takt, ohne Kapodaster.
-Der ganze Song ist eine Runde aus zwei offenen Griffen: Dm – Em, jeder Akkord zwei Takte.
-Leise Strophen, lange Steigerung, laute Bridge. Bonus: Dm und Em als Am-Form im 5. und 7. Bund.
-${LIED_505_AUFBAU.map(a => `${a.name}: ${a.runden} Runden (${a.takte} Takte)`).join('\n')}`,
+    inhalt: `„505" von Arctic Monkeys, gespielt wie im Video-Tutorial von Dee Must. Tonart D-Moll (genauer D-Dorisch), ohne Kapodaster, nur Dm und Em (beide offen), jeder Akkord zwei Takte.
+Anschlag laut Video: „DOWN" = ein Abschlag pro Akkord, „DDU UDU" = ↓ – ↓ ↑ – ↑ ↓ ↑, zweimal pro Akkord.
+Tempo im Video ca. ${LIED_505.bpm} BPM, ab Strophe 3 ca. 122 BPM. Bonus: Dm und Em als Am-Form im 5. und 7. Bund.
+${LIED_505_AUFBAU.map(a => `${a.name}: ${a.anschlag} (${a.takte} Takte${a.schneller ? ', schneller' : ''})`).join('\n')}`,
     inhaltNode: (
       <>
         <p className="ref-absatz">
-          <b>„505" von Arctic Monkeys</b> (2007, „Favourite Worst Nightmare"). Tonart <b>D-Moll</b>, genauer D-Dorisch, ca.{' '}
-          <b>{LIED_505.bpm} BPM</b> im 4/4-Takt – zum Üben mit {LIED_505.uebeBpm} BPM starten. Der ganze Song ist eine einzige
-          Runde aus zwei offenen Griffen, <b>Dm – Em</b>, jeder Akkord zwei Takte lang. Was den Song ausmacht, ist die{' '}
-          <b>Steigerung</b>: leise Strophen über der Orgel, dann wird es Runde für Runde lauter bis zur Bridge. Wer mag, greift
-          beide Akkorde als <b>Am-Form</b> im 5. und 7. Bund – dann rutscht dieselbe Handform nur zwei Bünde weiter.
+          <b>„505" von Arctic Monkeys</b> (2007, „Favourite Worst Nightmare"), so gespielt wie im Video-Tutorial von Dee Must.
+          Tonart <b>D-Moll</b>, genauer D-Dorisch. Der ganze Song braucht nur zwei offene Griffe, <b>Dm – Em</b>, immer im
+          Wechsel und jeder <b>zwei Takte</b> lang. Was sich ändert, ist die rechte Hand: Das Video blendet entweder{' '}
+          <b>„DOWN"</b> ein (ein Abschlag pro Akkord, klingen lassen) oder <b>„DDU UDU"</b> (↓ – ↓ ↑ – ↑ ↓ ↑, das Song-Muster
+          aus Go K.K. Rider) – zweimal pro Akkord. Tempo im Video ca. <b>{LIED_505.bpm} BPM</b>, ab Strophe 3 ca.{' '}
+          <b>122 BPM</b>; zum Üben mit {LIED_505.uebeBpm} BPM starten. Wer mag, greift beide Akkorde als <b>Am-Form</b> im 5.
+          und 7. Bund – dann rutscht dieselbe Handform nur zwei Bünde weiter.
         </p>
         <table className="ref-tabelle">
           <thead>
             <tr>
               <th>Abschnitt</th>
-              <th>Runden</th>
+              <th>Anschlag</th>
               <th>Takte</th>
             </tr>
           </thead>
@@ -268,19 +270,20 @@ ${LIED_505_AUFBAU.map(a => `${a.name}: ${a.runden} Runden (${a.takte} Takte)`).j
               <tr key={i}>
                 <td>
                   <b>{a.name}</b>
+                  {a.schneller && <span className="ref-hinweis">schneller</span>}
                 </td>
-                <td>{a.runden}</td>
+                <td>{a.anschlag}</td>
                 <td>{a.takte}</td>
               </tr>
             ))}
           </tbody>
         </table>
         <p className="ref-absatz" style={{ marginTop: '0.75rem' }}>
-          Die Akkordblätter ordnen Dm und Em dem Text zu, nicht Takten – die Runden je Abschnitt sind geschätzt (zusammen 4:14
-          Min. wie die Albumversion), also beim Hören mitzählen. Das komplette Songblatt steht unter{' '}
-          <a href="#uebung/lied-505">Lernschritte → 505 → 🎵 Das ganze Lied</a>. Quelle der Akkorde:{' '}
+          Takte und Tempo sind am Video gemessen (Akkordwechsel alle 4,3 s, ab Strophe 3 alle 3,9 s); die Studioaufnahme ist
+          mit ca. 140 BPM schneller. Das komplette Songblatt steht unter{' '}
+          <a href="#uebung/lied-505">Lernschritte → 505 → 🎵 Das ganze Lied</a>. Quelle:{' '}
           <a href={LIED_505.quelle.url} target="_blank" rel="noopener noreferrer">
-            Tabulatur bei Ultimate Guitar ↗
+            Video-Tutorial auf YouTube ↗
           </a>
           .
         </p>
@@ -352,7 +355,10 @@ Abschläge auf die Zahlen, Aufschläge auf „und"
 Für Go K.K. Rider:
 Einstieg:          ↓   ↓   ↓   ↓      (Viertel)
 Song-Muster:       ↓ – ↓ ↑ – ↑ ↓ ↑
-Zwei Akkorde pro Takt: Wechsel auf die 3 – fällt genau in die Lücke des Musters.`,
+Zwei Akkorde pro Takt: Wechsel auf die 3 – fällt genau in die Lücke des Musters.
+
+In Video-Tutorials oft als Buchstaben: D = Down (↓), U = Up (↑).
+„DDU UDU" (z.B. 505) = ↓ – ↓ ↑ – ↑ ↓ ↑ – dasselbe wie das Song-Muster.`,
     beispiele: [
       {
         szenario: 'So übst du ein neues Muster',

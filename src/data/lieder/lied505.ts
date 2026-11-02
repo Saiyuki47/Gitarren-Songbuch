@@ -1,37 +1,44 @@
 import { jeTakt, type Lied } from '../songblatt'
 
-// 505 (Arctic Monkeys, 2007) – letztes Lied auf „Favourite Worst Nightmare". Akkorde Dm und
-// Em wie in der offiziellen Tabulatur auf Ultimate Guitar und übereinstimmend in weiteren
-// Akkordblättern; Liedtext bewusst weggelassen. ca. 140 BPM, 4/4 (Spotify-Daten über
-// SongBPM), Albumversion 4:14. Tonart D-Moll bzw. genauer D-Dorisch (Em statt E°).
-// Ohne Kapodaster, nur zwei offene Griffe.
+// 505 (Arctic Monkeys, 2007) – letztes Lied auf „Favourite Worst Nightmare", Tonart D-Moll
+// bzw. D-Dorisch (Em statt E°). Gespielt wie im Video-Tutorial „505 - Arctic Monkeys (Guitar
+// Tutorial) No Capo! Easy Chords For Beginner!" von Dee Must auf YouTube; Liedtext bewusst
+// weggelassen. Ohne Kapodaster: nur Dm und Em, beide offen.
 //
-// Der ganze Song ist eine Runde aus Dm und Em. Die Blätter ordnen die Akkorde dem Text zu,
-// nicht Takten; hier dauert jeder Akkord zwei Takte (Runde = Dm Dm Em Em, 4 Takte), wie im
-// Intro der offiziellen Version. Mit den Runden unten ergibt das 148 Takte ≈ 4:14 Min. bei
-// 140 BPM. Die Rundenzahl je Abschnitt ist geschätzt und auf diese Länge verteilt.
+// Das Video blendet zu jedem Teil die Akkorde und unten rechts den Anschlag ein:
+// „DOWN" = einmal abschlagen und klingen lassen, „DDU UDU" = ↓ – ↓↑ – ↑ ↓↑ (dasselbe wie
+// das Song-Muster), laut Video zweimal pro Akkord. Jeder Akkord dauert also zwei Takte.
+// Gemessen am Video (Akkordwechsel per Tonanalyse): mit DDU UDU ein Wechsel etwa alle
+// 4,3 s ≈ 112 BPM, ab der dritten Strophe („strum faster") alle 3,9 s ≈ 122 BPM. Die
+// Studioaufnahme ist schneller (ca. 140 BPM laut Spotify-Daten über SongBPM).
+//
+// Die Abschnitts-IDs stammen aus dem ersten Aufbau dieser Seite (nach der Studioaufnahme)
+// und gehören zu denselben Textzeilen – so bleiben selbst eingetragene Texte
+// (lib/liedtext.ts) am richtigen Abschnitt, auch wenn die Namen jetzt dem Video folgen.
 
-const RUNDE = ['Dm', 'Dm', 'Em', 'Em']
+/** Video-Tempo der Teile mit DDU UDU. */
+const VIDEO_BPM = 112
+/** Ab Strophe 3 im Video schneller (≈ 122 BPM) – als Faktor, damit er auch beim Üben passt. */
+const SCHNELLER = 122 / VIDEO_BPM
 
 /** `n` Runden Dm – Em, jeder Akkord zwei Takte. */
-const runden = (n: number) => jeTakt(...Array.from({ length: n }, () => RUNDE).flat())
-
-const UNSICHER_TAKTE =
-  'Die Akkordblätter ordnen Dm und Em dem Text zu, nicht Takten. Hier dauert jeder Akkord zwei Takte (8 Schläge) – das ergibt mit diesem Aufbau 148 Takte ≈ 4:14 Min. bei 140 BPM, passend zur Albumversion (4:14). Wie viele Runden ein Abschnitt hat, ist geschätzt: beim Hören mitzählen.'
+const runden = (n: number) => jeTakt(...Array.from({ length: n }, () => ['Dm', 'Dm', 'Em', 'Em']).flat())
 
 export const LIED_505: Lied = {
   id: '505',
   titel: '505',
   lernIntro:
-    'Ein Indie-Rock-Klassiker: „505" von den Arctic Monkeys. Der ganze Song besteht aus nur zwei offenen Griffen, Dm und Em, die sich alle zwei Takte abwechseln (Dm kennst du vom Schluss von Go K.K. Rider, Em aus Zombie). Die Kunst liegt im sauberen Wechsel und in der großen Steigerung von ganz leise bis ganz laut. In fünf Schritten zum ganzen Lied, plus Bonus: dieselbe Runde als Barré-Griff.',
+    'Ein Indie-Rock-Klassiker: „505" von den Arctic Monkeys – mit nur zwei offenen Griffen, Dm und Em, ganz ohne Barré. Gelernt wird es wie im Video-Tutorial von Dee Must: erst ein Abschlag pro Akkord, dann das Schlagmuster DDU UDU, zweimal pro Akkord, und ab der dritten Strophe etwas schneller. In fünf Schritten zum ganzen Lied, plus Bonus: dieselbe Runde als Barré-Griff.',
   rechte: '„505" von Arctic Monkeys (Text und Musik: Alex Turner)',
-  bpm: 140,
+  bpm: VIDEO_BPM,
   uebeBpm: 80,
-  tempi: [80, 100, 120, 140],
-  anschlaege: ['ganze', 'viertel', 'rock'],
+  tempi: [80, 100, VIDEO_BPM],
+  anschlaege: ['einzeln', 'song'],
   quelle: {
-    url: 'https://tabs.ultimate-guitar.com/tab/arctic-monkeys/505-tabs-499395',
-    zusatz: 'Dm und Em übereinstimmend in weiteren Akkordblättern, Runden je Abschnitt geschätzt, Liedtext weggelassen.',
+    autor: 'Dee Must',
+    url: 'https://www.youtube.com/watch?v=d8CR8fSTm-Y',
+    zusatz: 'Liedtext weggelassen.',
+    video: true,
   },
   liedtext: { seite: 'Genius', url: 'https://genius.com/Arctic-monkeys-505-lyrics' },
   abschnitte: [
@@ -40,83 +47,104 @@ export const LIED_505: Lied = {
       name: 'Intro',
       teil: 1,
       takte: runden(2),
+      anschlag: 'einzeln',
       tipp:
-        'Die Orgel spielt die Runde allein: zwei Takte Dm, zwei Takte Em. Ein Anschlag pro Takt reicht („Ganze"), dann den Akkord ausklingen lassen. Zähl dazu „1 2 3 4, 2 2 3 4" – nach dem zweiten Takt kommt der Wechsel.',
-      unsicher: 'Im Original beginnt nur die Orgel. Wie viele Runden sie allein spielt, beim Hören mitzählen.',
+        'Dm – Em – Dm – Em, jeden Akkord nur einmal abwärts anschlagen und zwei Takte klingen lassen (im Video „DOWN"). Zähl „1 2 3 4, 2 2 3 4" – auf die nächste 1 kommt der nächste Akkord.',
+      unsicher:
+        'Im Video laufen Intro und erster Refrain etwas freier und flotter (ein Akkord alle 3½–4 Sekunden). Erst mit dem Schlagmuster in Strophe 1 pendelt sich das Tempo bei etwa 112 BPM ein. Zum Üben gilt überall: zwei Takte pro Akkord.',
     },
     {
       id: 'strophe-1',
-      name: 'Strophe 1 (leise)',
+      name: 'Refrain',
       teil: 1,
       takte: runden(4),
+      anschlag: 'einzeln',
       tipp:
-        'Leise: Ganze oder sanfte Viertel aus dem Handgelenk. Bei Dm nur die hohen Saiten anschlagen, bei Em alle sechs. Auf der 4 des zweiten Takts die Finger schon lösen.',
-      unsicher: UNSICHER_TAKTE,
+        'Der Gesang setzt ein – und du bleibst bei einem Abschlag pro Akkord. Achtmal wechseln: Dm, Em, Dm, Em … So bleibt viel Platz für die Stimme.',
+      unsicher:
+        'Im Video gehört dieser Teil zur ersten Strophe. Weil genau diese Zeilen (mit dem Songtitel) später zweimal wiederkommen, heißt er hier Refrain.',
     },
     {
       id: 'strophe-2',
-      name: 'Strophe 2 (leise)',
+      name: 'Strophe 1',
       teil: 1,
       takte: runden(4),
-      tipp: 'Dieselbe Runde, weiter leise. Der Gesang wird eindringlicher – die Gitarre bleibt ruhig im Hintergrund.',
+      anschlag: 'song',
+      vorher: 'Ab hier das Schlagmuster DDU UDU (↓ – ↓↑ – ↑ ↓↑) – zweimal pro Akkord.',
+      tipp:
+        'Jetzt läuft das Muster durch: zweimal DDU UDU auf Dm, zweimal auf Em. Umgreifen auf dem letzten Aufschlag (4+) – die Hand geht da ohnehin nach oben, und Leersaiten dürfen kurz mitklingen.',
     },
     {
       id: 'strophe-3',
-      name: 'Strophe 3 (leise)',
+      name: 'Strophe 2',
       teil: 1,
       takte: runden(4),
-      tipp: 'Wie Strophe 2. Zähl die Runden mit, damit du nicht den Faden verlierst – die Akkorde ändern sich nie.',
+      anschlag: 'song',
+      tipp: 'Wie Strophe 1: achtmal wechseln, je zweimal DDU UDU. Nach dem letzten Em geht es ohne Pause in den Refrain.',
     },
     {
       id: 'strophe-4',
-      name: 'Strophe 4',
+      name: 'Refrain',
       teil: 1,
       takte: runden(4),
-      tipp:
-        'Die Zeilen vom Anfang kehren zurück. Langsam kräftiger werden: von den Ganzen zu ruhigen Vierteln.',
-      unsicher: 'Ob hier noch eine Strophe kommt oder die Steigerung schon beginnt, unterscheidet sich je nach Zählweise – beim Hören prüfen.',
+      anschlag: 'song',
+      tipp: 'Dieselben Akkorde wie im ersten Refrain, jetzt aber mit DDU UDU – dadurch klingt er voller.',
     },
     {
       id: 'steigerung',
-      name: 'Steigerung',
+      name: 'Break',
       teil: 1,
-      takte: runden(6),
-      vorher: 'Ab hier wird es von Runde zu Runde lauter – das Tempo bleibt gleich!',
+      takte: runden(2),
+      anschlag: 'einzeln',
+      vorher: 'Break: wieder nur einmal pro Akkord abschlagen.',
       tipp:
-        'Schlagzeug und Gitarren bauen Spannung auf. Steigere dich mit: erst Viertel, dann kräftigere Viertel, in den letzten Runden Rock-Achtel ↓↓↓↓↓↓↓↓. Lauter heißt nicht schneller.',
-      unsicher:
-        'Wo genau Schlagzeug und E-Gitarren einsetzen und wie lang die Steigerung dauert, steht in keinem Akkordblatt – beim Hören mitzählen.',
+        'Dm – Em – Dm – Em wie im Intro: je ein Abschlag, zwei Takte klingen lassen. Im Video heißt der Teil „Break" (gesprochen „build-up") – hier sammelt sich die Spannung für den Schluss.',
     },
     {
       id: 'bridge',
-      name: 'Bridge (laut)',
+      name: 'Strophe 3',
       teil: 1,
       takte: runden(4),
-      tipp:
-        'Der berühmte Ausbruch, bei dem Alex Turner fast schreit. Volle Rock-Achtel, tiefe Saiten betonen – bei Dm darf jetzt die leere A-Saite mitklingen. Wer den Bonus geübt hat: Dm und Em als Barré im 5. und 7. Bund klingen hier noch kräftiger.',
+      anschlag: 'song',
+      tempo: SCHNELLER,
+      vorher:
+        'Ab hier schneller: Im Video geht das Tempo von etwa 112 auf 122 BPM hoch („strum faster"). Beim Mitspielen zieht der Klick automatisch mit an.',
+      tipp: 'Wieder DDU UDU, zweimal pro Akkord – nur zügiger. Bleib locker im Handgelenk; wenn es hakt, lieber kleinere Bewegungen als mehr Kraft.',
     },
     {
       id: 'schluss',
-      name: 'Schlussteil (laut)',
+      name: 'Refrain',
       teil: 1,
-      takte: runden(6),
-      tipp: 'Die Band bleibt laut, du auch: Rock-Achtel weiterspielen und locker bleiben, damit der Arm bei 140 BPM nicht verkrampft.',
-      unsicher: 'Wie der laute Teil nach der Bridge genau aufgeteilt ist, ist in den Akkordblättern nicht einheitlich – beim Hören mitzählen.',
+      takte: runden(4),
+      anschlag: 'song',
+      tempo: SCHNELLER,
+      tipp: 'Der letzte Refrain im schnelleren Tempo – dieselben acht Wechsel Dm, Em … wie in den anderen Refrains.',
     },
     {
       id: 'outro',
       name: 'Outro',
       teil: 1,
-      takte: runden(3),
-      tipp: 'Zurück zur Orgel: wieder leiser werden, Viertel oder Ganze. Zum Schluss den letzten Akkord ausklingen lassen. 🎸',
-      unsicher: 'Wie der Song genau endet, steht in keinem Akkordblatt – nach Gehör.',
+      takte: runden(2),
+      anschlag: 'song',
+      tempo: SCHNELLER,
+      tipp: 'Noch zwei Runden Dm – Em mit DDU UDU, ohne Gesang.',
+    },
+    {
+      id: 'ende',
+      name: 'Schluss',
+      teil: 1,
+      takte: runden(1),
+      anschlag: 'einzeln',
+      tempo: SCHNELLER,
+      tipp: 'Zum Schluss wie am Anfang: Dm einmal abschlagen, dann Em – und ausklingen lassen. 🎸',
     },
   ],
 }
 
-/** Aufbau für Überblick und Spickzettel: Abschnitt und Runden Dm – Em (4 Takte je Runde). */
+/** Aufbau für Überblick und Spickzettel: Abschnitt, Länge in Takten, Anschlag und Tempo laut Video. */
 export const LIED_505_AUFBAU = LIED_505.abschnitte.map(a => ({
   name: a.name,
-  runden: a.takte.length / RUNDE.length,
   takte: a.takte.length,
+  anschlag: a.anschlag === 'einzeln' ? '↓ einmal pro Akkord' : 'DDU UDU, 2× pro Akkord',
+  schneller: a.tempo !== undefined,
 }))
